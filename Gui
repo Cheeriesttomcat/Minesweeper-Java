@@ -1,0 +1,284 @@
+import java.awt.Color;
+import java.awt.event.MouseEvent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+//*********************************************************************
+//  MinesweeperGui.java      Author: Howard Akers 
+//  Written: 5/10/2019   Last Modified 5/11/2019
+//  Spliced in concepts from unknown author on the internet
+//
+//  Let's see it all in action!
+//  Let's play!
+//*********************************************************************
+public class MinesweeperGui extends javax.swing.JFrame implements java.awt.event.MouseListener
+{
+	// Getting our stuff established
+	Minesweeper game;
+    JPanel gamePane;
+    JPanel statusPane;
+    JLabel statusLabel;
+    MinesweeperGui.Cell[][] cells;
+    Color backGround;
+    int rows = 9;
+    int cols = 9;
+    javax.swing.Icon mineIcon = new javax.swing.ImageIcon(getClass().getResource("mine.jpg"));
+    javax.swing.Icon minexIcon = new javax.swing.ImageIcon(getClass().getResource("minex.jpg"));
+    javax.swing.Icon flagIcon = new javax.swing.ImageIcon(getClass().getResource("flag.jpg")); 
+    
+    //-----------------------------------------------------------------
+  	//  CONSTRUCT!!!11!!!1ONEONE!!
+   	//----------------------------------------------------------------- 
+    public MinesweeperGui()
+    {
+        backGround = Color.gray;
+        javax.swing.JMenu fileMenu = new javax.swing.JMenu("File");
+        javax.swing.JMenuItem fileMenuNew = new javax.swing.JMenuItem("New");
+        fileMenu.add(fileMenuNew);
+        // When you click new it should start a new game
+        fileMenuNew.addActionListener(new java.awt.event.ActionListener() 
+        {
+            public void actionPerformed(java.awt.event.ActionEvent paramAnonymousActionEvent) 
+            {
+            	MinesweeperGui.this.newGame();
+            }
+        });
+        // This is so you can quit
+        javax.swing.JMenuItem fileMenuQuit = new javax.swing.JMenuItem("Quit");
+        fileMenu.add(fileMenuQuit);
+        fileMenuQuit.addActionListener(new java.awt.event.ActionListener() 
+        {
+        	public void actionPerformed(java.awt.event.ActionEvent paramAnonymousActionEvent) 
+        	{
+        		System.exit(0);
+        	}
+        });
+        javax.swing.JMenuBar menuBar = new javax.swing.JMenuBar();
+        setJMenuBar(menuBar);
+        menuBar.add(fileMenu);
+        // Main panel
+        gamePane = new JPanel();
+        gamePane.setLayout(new java.awt.GridLayout(rows, cols));
+        statusPane = new JPanel();
+        statusPane.setLayout(new java.awt.FlowLayout(1));
+        statusLabel = new JLabel();
+        statusLabel.setFont(new java.awt.Font("Helvetica", 1, 24));
+        statusPane.add(statusLabel);
+        java.awt.Container container = getContentPane();
+        container.setLayout(new java.awt.BorderLayout());
+        container.add(statusPane, "North");
+        container.add(gamePane, "Center");
+        gamePane.addMouseListener(this);
+        game = new Minesweeper(rows, cols);
+        cells = new MinesweeperGui.Cell[rows][cols];
+        for (int i = 0; i < rows; i++) 
+        {
+            for (int j = 0; j < cols; j++)
+            {
+              cells[i][j] = new MinesweeperGui.Cell(i, j);
+              cells[i][j].addMouseListener(this);
+              gamePane.add(cells[i][j]);
+            }
+        }
+        statusLabel.setText("New Game");
+        setTitle("Minesweeper");
+        setContentPane(container);
+        setSize(400, 300);
+        show();
+    }
+    
+    //-----------------------------------------------------------------
+  	//  Main whaaaaaat
+   	//----------------------------------------------------------------- 
+    public static void main(String[] paramArrayOfString)
+    {
+      MinesweeperGui guiProper = new MinesweeperGui();
+      guiProper.addWindowListener(new java.awt.event.WindowAdapter() 
+      {
+    	  public void windowClosing(java.awt.event.WindowEvent paramAnonymousWindowEvent) 
+    	  {
+    		  System.exit(0);
+    	  }
+      });
+    }
+    
+    //-----------------------------------------------------------------
+  	//  It's a new minefield!
+   	//----------------------------------------------------------------- 
+   	private void newGame() 
+    {
+   		game = new Minesweeper(rows, cols);
+   	    update();
+   	    statusLabel.setText("Fresh Start!");
+	}
+    	
+   	//-----------------------------------------------------------------
+    //  Updates the screen.  Changes the cell to what it's supposed to
+    //  show and changes the win/lose message
+    //----------------------------------------------------------------- 	
+   	public void update()
+    {
+   		for (int i = 0; i < rows; i++) 
+   		{
+   			for (int j = 0; j < cols; j++) 
+   			{
+    			switch (game.getBoard(i, j))
+    			{
+    				case '1': 
+    					cells[i][j].setText("1");
+    					cells[i][j].setForeground(Color.blue);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case '2': 
+    					cells[i][j].setText("2");
+    					cells[i][j].setForeground(Color.green);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case '3': 
+    					cells[i][j].setText("3");
+    					cells[i][j].setForeground(Color.red);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;  	        
+    				case '4': 
+    					cells[i][j].setText("4");
+    					cells[i][j].setForeground(Color.magenta);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case '5': 
+    					cells[i][j].setText("5");
+    					cells[i][j].setForeground(Color.orange);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case '6': 
+    					cells[i][j].setText("6");
+    					cells[i][j].setForeground(Color.cyan);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case '7': 
+    					cells[i][j].setText("7");
+    					cells[i][j].setForeground(Color.black);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case '8': 
+    					cells[i][j].setText("6");
+    					cells[i][j].setForeground(Color.darkGray);
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case ' ': 
+    					cells[i][j].setText("");
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(backGround);
+    					break;
+    				case 'X': 
+    					cells[i][j].setText("");
+    					cells[i][j].setIcon(null);
+    					cells[i][j].setBackground(null);
+    					break;
+    				case '?': 
+    					cells[i][j].setText("?");
+    					cells[i][j].setForeground(Color.blue);
+    					cells[i][j].setIcon(null);
+    					break;
+    				case 'F': 
+    					cells[i][j].setText("");
+    					cells[i][j].setIcon(flagIcon);
+    					break;
+    				case '*': 
+    					cells[i][j].setText("");
+    					cells[i][j].setBackground(backGround);
+    					cells[i][j].setIcon(mineIcon);
+    				}   
+    			}
+    	    }
+    	    statusLabel.setText(game.getStatus());
+    	    if (game.getStatus().equalsIgnoreCase("play"))
+    	    {
+    	      statusLabel.setForeground(Color.black);
+    	      statusLabel.setText("Careful Careful");
+    	    } else if (game.getStatus().equalsIgnoreCase("win"))
+    	    {
+    	      statusLabel.setForeground(Color.blue);
+    	      statusLabel.setText("You are a Winner!");
+    	    }
+    	    else
+    	    {
+    	      statusLabel.setForeground(Color.red);
+    	      statusLabel.setText("Try Again!");
+    	    }
+    	}
+    	
+    	//-----------------------------------------------------------------
+    	// What happens when we click?
+    	//-----------------------------------------------------------------
+    	public void mouseClicked(MouseEvent paramMouseEvent)
+    	{
+    		MinesweeperGui.Cell thisCell = (MinesweeperGui.Cell)paramMouseEvent.getSource();
+    	    if (paramMouseEvent.getButton() == 1)
+    	    {
+    	    	game.markTile(thisCell.getRow(), thisCell.getCol(), 0);
+    	    }
+    	    else if (paramMouseEvent.getButton() == 3)
+    	    {
+    	      switch (game.getTiles(thisCell.getRow(), thisCell.getCol()))
+    	      {
+    	      case 1: 
+    	    	  game.markTile(thisCell.getRow(), thisCell.getCol(), 3);
+    	          break;
+    	      case 3: 
+    	          game.markTile(thisCell.getRow(), thisCell.getCol(), 2);
+    	          break;
+    	      case 2: 
+    	          game.markTile(thisCell.getRow(), thisCell.getCol(), 1);
+    	      }   
+    	    }
+    	    update();
+    	  }
+    	  public void mousePressed(MouseEvent paramMouseEvent) {}
+    	  public void mouseReleased(MouseEvent paramMouseEvent) {} 
+    	  public void mouseEntered(MouseEvent paramMouseEvent) {}
+    	  public void mouseExited(MouseEvent paramMouseEvent) {}
+    
+
+    
+	//-----------------------------------------------------------------
+	//  Making cell buttons!
+	//-----------------------------------------------------------------
+	private class Cell extends javax.swing.JButton
+	{
+    	int row;
+    	int col;
+    	
+    	//-----------------------------------------------------------------
+    	//  Constructor!  It need to know where it is!
+    	//-----------------------------------------------------------------
+	    public Cell(int r, int c)
+	    {
+	      row = r;
+	      col = c;
+	    }
+	    
+		//-----------------------------------------------------------------
+		//  Get that row!
+		//-----------------------------------------------------------------
+	    public int getRow() 
+	    {
+	      return row;
+	    }
+	    
+		//-----------------------------------------------------------------
+		//  Get that col!
+		//-----------------------------------------------------------------
+	    public int getCol() 
+	    { 
+	    	return col; 
+	    }
+	  }
+
+}
