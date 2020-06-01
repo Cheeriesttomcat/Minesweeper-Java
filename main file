@@ -1,0 +1,355 @@
+import java.util.Random;
+//*********************************************************************
+//  Minesweeper.java       Author: Howard Akers 
+//  Written: 5/10/2019   Last Modified 5/11/2019
+//  Spliced in code from unknown author 2004
+//
+//  Creates the main board for the minesweeper!
+//  Maybe do a primitive game or two :P
+//*********************************************************************
+
+public class Minesweeper
+{
+	private int hardness;
+	private int[][] mines;
+	private int[][] tiles;
+	private String status;
+	
+	//-----------------------------------------------------------------
+	//  Constructor: with custom difficulty and size
+	//-----------------------------------------------------------------
+	public Minesweeper(int x, int y, int h)
+	{
+		hardness = h;
+		initGame(x,y);
+	}
+	
+	//-----------------------------------------------------------------
+	//  Constructor: with custom size
+	//-----------------------------------------------------------------
+	public Minesweeper(int x, int y)
+	{
+		hardness = 20;
+		initGame(x,y);
+	}
+	
+	//-----------------------------------------------------------------
+	//  Constructor: the default
+	//-----------------------------------------------------------------
+	public Minesweeper()
+	{
+		hardness = 20;
+		initGame(9,9);
+	}
+	
+	//-----------------------------------------------------------------
+	//  Did we win or lose?  Are we still playing?
+	//-----------------------------------------------------------------
+	public String getStatus() 
+	{
+		return status;
+	}
+	
+	//-----------------------------------------------------------------
+	//  How long is this thing?
+	//-----------------------------------------------------------------
+	public int getRows() 
+	{
+		return mines.length;
+	}
+	
+	//-----------------------------------------------------------------
+	//  Other direction plz
+	//-----------------------------------------------------------------
+	public int getCols() 
+	{
+		return mines[0].length;
+	}
+	
+	//-----------------------------------------------------------------
+	//  What's on the mine tile
+	//-----------------------------------------------------------------
+	public int getMines(int r, int c) 
+	{
+		if (validIndex(r, c)) 
+		{
+			return mines[r][c];
+		} else 
+		{
+			return -1;
+		}
+	}
+	
+	//-----------------------------------------------------------------
+	//  What's on the top tile
+	//-----------------------------------------------------------------
+	public int getTiles(int r, int c) 
+	{
+		if (validIndex(r, c)) 
+		{
+			return tiles[r][c];
+		} else 
+		{
+			return -1;
+		}
+	}
+	
+	//-----------------------------------------------------------------
+	//  Is this index valid?
+	//-----------------------------------------------------------------
+	private boolean validIndex(int x, int y) 
+	{
+		if (x >= 0 && x < getRows())
+		{
+			if (y >= 0 && y < getCols())
+			{
+			return true;
+			}
+		}
+		return false;
+	}
+	
+	//-----------------------------------------------------------------
+	//  Switching the tile.  1 means it's closed, 2 means it's got a ?
+	//  3 means it has a flag.  Zero means they've 'clicked on it' 
+	//  Now we've got to see if they blow up, if they won, or if we 
+	//  need to clear the nearby empties
+	//-----------------------------------------------------------------
+	public void markTile(int r, int c, int t) 
+	{
+		if (status.compareTo("play") == 0 && validIndex(r,c))
+		{
+			if (t != 0)
+				tiles[r][c] = t;
+			else
+			{
+				if (tiles[r][c] != 2 && tiles[r][c] != 3 && tiles[r][c] != 0)
+				{
+					tiles[r][c] = t;
+					if (mines[r][c] == 9)
+						status = "lose";
+					else if (gameWon())
+						status = "win";
+					else if (mines[r][c] == 0)
+					{
+						markTile(r - 1, c - 1, 0);
+						markTile(r, c - 1, 0);
+						markTile(r + 1, c - 1, 0);
+						markTile(r + 1, c, 0);
+						markTile(r - 1, c, 0);
+						markTile(r - 1 , c + 1, 0);
+						markTile(r, c + 1, 0);
+						markTile(r + 1, c + 1, 0); 
+					}
+				}
+			}
+		}
+	}
+	
+	//-----------------------------------------------------------------
+	//  Mine array to a string
+	//-----------------------------------------------------------------
+	public String toStringMines() 
+	{
+		String result = "\n";
+
+		for (int r = 0; r < mines.length; r++) 
+		{
+			for (int c = 0; c < mines[r].length; c++)
+				result = result + mines[r][c];
+
+			result += "\n";
+		}
+		return result;
+	}
+	
+	//-----------------------------------------------------------------
+	//  Tile array to a string
+	//-----------------------------------------------------------------
+	public String toStringTiles() 
+	{
+		String result = "\n";
+
+		for (int r = 0; r < mines.length; r++) 
+		{
+			for (int c = 0; c < mines[r].length; c++)
+				result = result + tiles[r][c];
+
+			result += "\n";
+		}
+
+		return result;
+	}
+	
+	//-----------------------------------------------------------------
+	//  String of "The board"
+	//-----------------------------------------------------------------
+	public String toStringBoard() 
+	{
+		String result = "";
+
+		for (int r = 0; r < tiles.length; r++) 
+		{
+			for (int c = 0; c < tiles[r].length; c++) 
+			{
+				result += this.getBoard(r, c);
+			}
+			result += "\n"; //advance to next line
+		}
+
+		return result;
+	}
+	
+	//-----------------------------------------------------------------
+	//  What shows on  "The board"
+	//-----------------------------------------------------------------
+	public char getBoard(int r, int c) 
+	{
+		if (tiles[r][c] == 1)
+			return 'X';
+		if (tiles[r][c] == 2)
+			return '?';
+		if (tiles[r][c] == 3)
+			return 'F';
+		if (mines[r][c] == 0)
+			return ' ';
+		if (mines[r][c] == 9)
+			return '*';
+		int redix = 10;
+		return Character.forDigit(mines[r][c], redix);
+/*		if (status.compareTo("play") != 0)
+	    {
+	      if (status.equals("win")) 
+	      {
+	        if (mines[r][c] == 9) 
+	        {
+	          return 'F';
+	        }
+	      }
+	      else if ((mines[r][c] == 9) && (tiles[r][c] == 0)) 
+	      {
+	         return '!';
+	      }
+	      else if (mines[r][c] == 9) 
+	      {
+	    	  return '*';
+	      }
+	      else if ((mines[r][c] != 9) && (tiles[r][c] == 3))
+	      {
+	    	  return '-';
+	      }
+	    } */
+	  }
+	
+	//-----------------------------------------------------------------
+	//  Let's get it started!
+	//-----------------------------------------------------------------
+	private void initGame(int newRows, int newCols) 
+	{
+		//allocate space for mines and tiles array
+		if ((newRows >= 1) && (newCols >= 1)) 
+		{
+			mines = new int[newRows][newCols];
+			tiles = new int[newRows][newCols];
+
+			//init tiles array
+			resetTiles();
+
+			//place mines
+			placeMines();
+
+			//update clues
+			calculateClues();
+
+			//set game status
+			status = "play";
+		}
+	}
+	
+	//-----------------------------------------------------------------
+	//  Back to default
+	//-----------------------------------------------------------------
+	private void resetTiles() 
+	{
+		for (int i = 0; i < getRows(); i++)
+		{
+			for (int j = 0; j < getCols(); j++)
+			{
+				mines[i][j]= 0;
+				tiles[i][j]= 1;
+			}
+		}
+	}
+	
+	//-----------------------------------------------------------------
+	// Put them mines in!
+	//-----------------------------------------------------------------
+	private void placeMines() 
+	{
+		Random random = new Random();
+		for (int i = 0; i < getRows(); i++)
+		{
+			for (int j = 0; j < getCols(); j++)
+			{
+
+				int r = random.nextInt(100);
+				
+				if (r < hardness)
+				{
+					mines[i][j] = 9;
+				}
+			}
+		}
+	}
+	
+	//-----------------------------------------------------------------
+	// What's the clue?
+	//-----------------------------------------------------------------
+	private void calculateClues() 
+	{
+		for (int i = 0; i < getRows(); i++)
+		{
+			for (int j = 0; j < getCols(); j++)
+			{
+				if (mines[i][j] != 9)
+				{	
+					int count = 0;
+					if (validIndex(i-1, j-1) && mines[i-1][j-1] == 9)
+						count++;
+					if (validIndex(i, j-1) && mines[i][j-1] == 9)
+						count++;
+					if (validIndex(i+1, j-1) && mines[i+1][j-1] == 9)
+						count++;
+					if (validIndex(i-1, j) && mines[i-1][j] == 9)
+						count++;
+					if (validIndex(i+1, j) && mines[i+1][j] == 9)
+						count++;
+					if (validIndex(i-1, j+1) && mines[i-1][j+1] == 9)
+						count++;
+					if (validIndex(i, j+1) && mines[i][j+1] == 9)
+						count++;
+					if (validIndex(i+1, j+1) && mines[i+1][j+1] == 9)
+						count++;
+					mines[i][j] = count;
+				} 
+			}
+		}
+	}
+		
+	//-----------------------------------------------------------------
+	// Did we win?
+	//-----------------------------------------------------------------
+	private boolean gameWon() 
+	{
+		boolean winner = true;
+		for (int i = 0; i < getRows(); i++)
+		{
+			for (int j = 0; j < getCols(); j++)
+			{
+				if (tiles[i][j] != 0 && mines[i][j] != 9)
+						winner = false;
+			}
+		}
+		return winner;
+	}
+}
